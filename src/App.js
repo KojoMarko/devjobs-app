@@ -1,25 +1,48 @@
-import logo from './logo.svg';
-import './App.css';
+import BackgroundSVG from './components/Header/BackgroundSVG';
+import Logo from './components/Header/Logo';
+import Toggle from './components/Header/Toggle';
 
-function App() {
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import JobPage from './pages/JobPage';
+
+import { useState, useEffect } from 'react';
+import NotFoundPage from './pages/NotFoundPage';
+import { AnimatePresence } from 'framer-motion';
+
+
+const App = () => {
+  const [theme, setTheme] = useState('light');
+  const location = useLocation();
+
+  const changeThemeHandler = () => {
+    setTheme((prevActiveTheme) => {
+      return prevActiveTheme === 'light' ? 'dark' : 'light';
+    });
+  };
+
+  useEffect(() => {
+    document.getElementById('root').dataset.theme = theme;
+  }, [theme]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+    <>
+      <BackgroundSVG />
+      <header>
+        <Logo />
+        <Toggle activeTheme={theme} onChangeTheme={changeThemeHandler} />
       </header>
-    </div>
+
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.key}>
+          <Route path="/" element={<HomePage />} />
+          <Route path=":jobId" element={<JobPage />} />
+          <Route path="/not-found" element={<NotFoundPage />} />
+          <Route path="*" element={<Navigate replace to="/not-found" />} />
+        </Routes>
+      </AnimatePresence>
+    </>
   );
-}
+};
 
 export default App;
